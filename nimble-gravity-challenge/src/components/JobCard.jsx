@@ -17,7 +17,6 @@ export default function JobCard({ job }) {
   const isValidGithubUrl = useMemo(() => {
     const v = repoUrl.trim();
     if (!v) return false;
-    // simple y suficiente para UI
     return /^https?:\/\/(www\.)?github\.com\/[^/\s]+\/[^/\s]+\/?$/.test(v);
   }, [repoUrl]);
 

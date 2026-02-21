@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Alert, CircularProgress, Stack } from '@mui/material';
-import { getJobs } from '../api/jobs';
-import JobCard from './JobCard';
+import { useEffect, useState } from "react";
+import { Alert, Stack, Skeleton } from "@mui/material";
+import { getJobs } from "../api/jobs";
+import JobCard from "./JobCard";
 
 export default function JobsList() {
   const [jobs, setJobs] = useState([]);
@@ -18,7 +18,7 @@ export default function JobsList() {
         const data = await getJobs();
         if (!cancelled) setJobs(data);
       } catch (e) {
-        if (!cancelled) setError(e?.message ?? 'Error fetching jobs');
+        if (!cancelled) setError(e?.message ?? "Error fetching jobs");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -31,8 +31,15 @@ export default function JobsList() {
 
   if (loading) {
     return (
-      <Stack alignItems="center" sx={{ py: 8 }}>
-        <CircularProgress />
+      <Stack spacing={2}>
+        {[1, 2, 3].map((i) => (
+          <Skeleton
+            key={i}
+            variant="rounded"
+            height={118}
+            sx={{ borderRadius: 3 }}
+          />
+        ))}
       </Stack>
     );
   }
@@ -47,7 +54,7 @@ export default function JobsList() {
 
   return (
     <Stack spacing={2}>
-      {jobs.map(job => (
+      {jobs.map((job) => (
         <JobCard key={job.id} job={job} />
       ))}
     </Stack>
