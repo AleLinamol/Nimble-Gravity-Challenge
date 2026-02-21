@@ -3,7 +3,7 @@ import { Alert, Stack, Skeleton } from "@mui/material";
 import { getJobs } from "../api/jobs";
 import JobCard from "./JobCard";
 
-export default function JobsList() {
+export default function JobsList({ candidate }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,9 +15,14 @@ export default function JobsList() {
       try {
         setLoading(true);
         setError(null);
+
         const data = await getJobs();
+        console.log("[GET /api/jobs/get-list] response:", data);
+
         if (!cancelled) setJobs(data);
       } catch (e) {
+        console.error("[GET /api/jobs/get-list] error:", e);
+
         if (!cancelled) setError(e?.message ?? "Error fetching jobs");
       } finally {
         if (!cancelled) setLoading(false);
@@ -55,7 +60,7 @@ export default function JobsList() {
   return (
     <Stack spacing={2}>
       {jobs.map((job) => (
-        <JobCard key={job.id} job={job} />
+        <JobCard key={job.id} job={job} candidate={candidate} />
       ))}
     </Stack>
   );

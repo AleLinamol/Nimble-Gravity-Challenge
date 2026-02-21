@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -9,10 +9,11 @@ import {
   Stack,
   TextField,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-export default function JobCard({ job }) {
-  const [repoUrl, setRepoUrl] = useState('');
+export default function JobCard({ job, candidate }) {
+  const [repoUrl, setRepoUrl] = useState("");
+  const canSubmitLater = !!candidate?.uuid;
 
   const isValidGithubUrl = useMemo(() => {
     const v = repoUrl.trim();
@@ -25,16 +26,16 @@ export default function JobCard({ job }) {
       variant="outlined"
       sx={{
         borderRadius: 3,
-        bgcolor: 'white',
+        bgcolor: "white",
       }}
     >
       <CardContent sx={{ p: 2.5 }}>
         <Stack spacing={1.5}>
           <Box
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
               gap: 2,
             }}
           >
@@ -48,9 +49,9 @@ export default function JobCard({ job }) {
           <Divider />
 
           <Stack
-            direction={{ xs: 'column', sm: 'row' }}
+            direction={{ xs: "column", sm: "row" }}
             spacing={1.5}
-            alignItems={{ xs: 'stretch', sm: 'center' }}
+            alignItems="stretch"
           >
             <TextField
               label="URL del repo de GitHub"
@@ -62,17 +63,25 @@ export default function JobCard({ job }) {
               error={repoUrl.length > 0 && !isValidGithubUrl}
               helperText={
                 repoUrl.length === 0
-                  ? 'Ej: https://github.com/user/proyecto'
+                  ? "Ej: https://github.com/user/proyecto"
                   : !isValidGithubUrl
-                    ? 'Pegá una URL válida de GitHub (user/repo).'
-                    : ' '
+                    ? "Pegá una URL válida de GitHub (user/repo)."
+                    : " "
               }
+              sx={{
+                flex: 1,
+                "& .MuiInputBase-root": { height: 40 }, 
+              }}
             />
 
             <Button
               variant="contained"
-              sx={{ minWidth: 140, height: 40, fontWeight: 700 }}
-              disabled={!isValidGithubUrl}
+              sx={{
+                height: 40,
+                minWidth: 140,
+                alignSelf: "flex-start", 
+              }}
+              disabled={!isValidGithubUrl || !canSubmitLater}
             >
               Submit
             </Button>
