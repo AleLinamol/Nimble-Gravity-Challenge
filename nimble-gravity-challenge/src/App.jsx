@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { AppBar, Box, Container, Toolbar, Typography } from '@mui/material';
+import JobsList from './components/JobsList';
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f6f7fb' }}>
+      <AppBar position="static" elevation={0}>
+        <Toolbar>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Job Apply
+          </Typography>
+        </Toolbar>
+      </AppBar>
 
-export default App
+      {/* Centrado horizontal */}
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Container
+          maxWidth="md"
+          sx={{
+            py: 5,
+            // centra el container y evita que quede pegado a la izquierda
+            mx: 'auto',
+          }}
+        >
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 2 }}>
+            Posiciones abiertas
+          </Typography>
+
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            Elegí una posición, pegá la URL de tu repo de GitHub y enviá tu postulación.
+          </Typography>
+
+          <JobsList />
+        </Container>
+      </Box>
+    </Box>
+  );
+}
