@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { Alert, Stack, Skeleton } from "@mui/material";
 import { getJobs } from "../api/jobs";
 import JobCard from "./JobCard";
+import { useI18n } from "../i18n/I18nProvider";
 
 export default function JobsList({ candidate }) {
+  const { t } = useI18n();
+
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,8 +25,7 @@ export default function JobsList({ candidate }) {
         if (!cancelled) setJobs(data);
       } catch (e) {
         console.error("[GET /api/jobs/get-list] error:", e);
-
-        if (!cancelled) setError(e?.message ?? "Error fetching jobs");
+        if (!cancelled) setError(e?.message ?? "Error");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -52,7 +54,7 @@ export default function JobsList({ candidate }) {
   if (error) {
     return (
       <Alert severity="error">
-        No se pudieron cargar las posiciones. {error}
+        {t("jobsLoadError")} {error}
       </Alert>
     );
   }

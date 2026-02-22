@@ -12,14 +12,19 @@ import {
   Typography,
 } from "@mui/material";
 import { applyToJob } from "../api/apply";
+import { useI18n } from "../i18n/I18nProvider";
 
 export default function JobCard({ job, candidate }) {
+  const { t } = useI18n();
+
   const [repoUrl, setRepoUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitOk, setSubmitOk] = useState(false);
 
-const hasCandidate = !!candidate?.uuid && !!candidate?.candidateId && !!candidate?.applicationId;
+  const hasCandidate =
+    !!candidate?.uuid && !!candidate?.candidateId && !!candidate?.applicationId;
+
   const isValidGithubUrl = useMemo(() => {
     const v = repoUrl.trim();
     if (!v) return false;
@@ -27,6 +32,14 @@ const hasCandidate = !!candidate?.uuid && !!candidate?.candidateId && !!candidat
   }, [repoUrl]);
 
   const canSubmit = hasCandidate && isValidGithubUrl && !submitting;
+
+  // Translate job title when available
+  const titlesById = t("jobTitlesById");
+  const titlesByName = t("jobTitlesByName");
+  const displayTitle =
+    (titlesById && titlesById[job.id]) ||
+    (titlesByName && titlesByName[job.title]) ||
+    job.title;
 
   const onSubmit = async () => {
     try {
@@ -38,38 +51,35 @@ const hasCandidate = !!candidate?.uuid && !!candidate?.candidateId && !!candidat
         uuid: candidate.uuid,
         jobId: job.id,
         candidateId: candidate.candidateId,
-        applicationId: candidate.applicationId, 
+        applicationId: candidate.applicationId,
         repoUrl: repoUrl.trim(),
       };
 
       console.log("[POST /api/candidate/apply-to-job] body:", payload);
 
-      //  Log del body exacto que se envía
-      console.log("[POST /api/candidate/apply-to-job] body:", payload);
-
       const res = await applyToJob(payload);
       console.log("[POST /api/candidate/apply-to-job] response:", res);
 
-      if (res?.ok === true) setSubmitOk(true);
-      else setSubmitOk(true);
+      setSubmitOk(true);
     } catch (e) {
       console.error("[POST /api/candidate/apply-to-job] error:", e);
-      console.error(
-        "[POST /api/candidate/apply-to-job] error.details:",
-        e?.details,
-      );
+      console.error("[POST /api/candidate/apply-to-job] error.details:", e?.details);
 
-      // Mostrar más info si viene del backend
+      const fieldErrors = e?.details?.details?.fieldErrors;
+      const fieldErrorsMsg = fieldErrors
+        ? Object.entries(fieldErrors)
+            .flatMap(([field, msgs]) => (msgs || []).map((m) => `${field}: ${m}`))
+            .join(" | ")
+        : null;
+
       const backendMsg =
+        fieldErrorsMsg ||
+        e?.details?.details?.formErrors?.join(" | ") ||
         e?.details?.message ||
         e?.details?.error ||
-        (Array.isArray(e?.details?.errors)
-          ? e.details.errors.join(", ")
-          : null);
+        (Array.isArray(e?.details?.errors) ? e.details.errors.join(", ") : null);
 
-      setSubmitError(
-        backendMsg || e?.message || "Error enviando la postulación",
-      );
+      setSubmitError(backendMsg || e?.message || t("applyErrorDefault"));
     } finally {
       setSubmitting(false);
     }
@@ -88,7 +98,7 @@ const hasCandidate = !!candidate?.uuid && !!candidate?.candidateId && !!candidat
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {job.title}
+              {displayTitle}
             </Typography>
 
             <Chip size="small" label={`ID: ${job.id}`} variant="outlined" />
@@ -102,8 +112,8 @@ const hasCandidate = !!candidate?.uuid && !!candidate?.candidateId && !!candidat
             alignItems="stretch"
           >
             <TextField
-              label="URL del repo de GitHub"
-              placeholder="https://github.com/tu-usuario/tu-repo"
+              label={t("githubRepoLabel")}
+              placeholder={t("githubRepoPlaceholder")}
               value={repoUrl}
               onChange={(e) => {
                 setRepoUrl(e.target.value);
@@ -116,11 +126,11 @@ const hasCandidate = !!candidate?.uuid && !!candidate?.candidateId && !!candidat
               error={repoUrl.length > 0 && !isValidGithubUrl}
               helperText={
                 !hasCandidate
-                  ? "Primero cargá tu candidato con el email para habilitar el envío."
+                  ? t("mustLoadCandidate")
                   : repoUrl.length === 0
-                    ? "Ej: https://github.com/user/proyecto"
+                    ? t("githubHelpEmpty")
                     : !isValidGithubUrl
-                      ? "Pegá una URL válida de GitHub (user/repo)."
+                      ? t("githubHelpInvalid")
                       : " "
               }
               sx={{
@@ -139,7 +149,7 @@ const hasCandidate = !!candidate?.uuid && !!candidate?.candidateId && !!candidat
                 alignSelf: "flex-start",
               }}
             >
-              {submitting ? "Enviando..." : "Enviar"}
+              {submitting ? t("submitting") : t("submit")}
             </Button>
           </Stack>
 
@@ -151,7 +161,7 @@ const hasCandidate = !!candidate?.uuid && !!candidate?.candidateId && !!candidat
 
           {submitOk && (
             <Alert severity="success" variant="outlined">
-              Postulación enviada 
+              {t("applySuccess")}
             </Alert>
           )}
         </Stack>
