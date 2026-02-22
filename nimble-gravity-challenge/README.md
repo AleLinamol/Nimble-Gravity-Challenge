@@ -11,6 +11,7 @@ Mini app en React que consume una API para:
 - React (Vite)
 - Material UI (MUI)
 - Fetch API (wrapper simple en `src/api/client.js`)
+- Tests: Vitest + React Testing Library
 
 ---
 
@@ -27,7 +28,7 @@ Creá un archivo `.env` en la raíz del proyecto (mismo nivel que `package.json`
 
 **.env.example**
 ```bash
-VITE_BASE_URL=https://botfilter-h5ddh6dye8exb7ha.centralus-01.azurewebsites.net
+VITE_BASE_URL=Tu_Base_URL
 ```
 
 > En Vite, las variables expuestas al frontend deben comenzar con `VITE_`.
@@ -47,18 +48,7 @@ La app se levanta en la URL que te muestre la terminal (por defecto `http://loca
 
 ## Funcionalidad implementada
 
-### Step 3 — Listado de posiciones abiertas
-- Se consulta el endpoint:
-  - `GET /api/jobs/get-list`
-- Se muestra una lista de posiciones con:
-  - Título
-  - Campo para URL de repo
-  - Botón `Submit` (habilitado solo cuando el candidato está cargado y la URL es válida)
-- Manejo de estados:
-  - Loading (Skeleton)
-  - Error (Alert)
-
-### Step 2 — Obtener datos del candidato
+### Obtener datos del candidato
 - Se consulta el endpoint:
   - `GET /api/candidate/get-by-email?email=TU_EMAIL`
 - UI:
@@ -68,6 +58,31 @@ La app se levanta en la URL que te muestre la terminal (por defecto `http://loca
   - Botón "Limpiar"
 - Persistencia:
   - Los datos del candidato se guardan en `localStorage` para mantener el estado al refrescar.
+
+  ### Listado de posiciones abiertas
+- Se consulta el endpoint:
+  - `GET /api/jobs/get-list`
+- Se muestra una lista de posiciones con:
+  - Título (con soporte opcional de traducción ES/EN por diccionario)
+  - Campo para URL de repo
+  - Botón `Submit` (habilitado solo cuando el candidato está cargado y la URL es válida)
+- Manejo de estados:
+  - Loading (Skeleton)
+  - Error (Alert)
+
+### Enviar postulación (Apply to job)
+- Se consulta el endpoint:
+  - `POST /api/candidate/apply-to-job`
+- En el envío se incluye (según validación real del backend):
+  - `uuid`
+  - `jobId`
+  - `candidateId`
+  - `applicationId` (**requerido por el backend** )
+  - `repoUrl`
+- Manejo de estados por card:
+  - Submitting
+  - Success
+  - Error (muestra `fieldErrors` si vienen en el body)
 
 ---
 
@@ -107,6 +122,7 @@ Base URL: `VITE_BASE_URL`
   "uuid": "tu uuid",
   "jobId": "id del job",
   "candidateId": "tu candidateId",
+  "applicationId": "tu applicationId",
   "repoUrl": "https://github.com/tu-usuario/tu-repo"
 }
 ```
@@ -114,6 +130,32 @@ Base URL: `VITE_BASE_URL`
 ```json
 { "ok": true }
 ```
+
+---
+
+## Tests
+
+### Ejecutar tests
+- Modo watch:
+```bash
+npm test
+```
+
+- Una sola corrida:
+```bash
+npm run test:run
+```
+
+### Tech
+- Vitest (runner)
+- jsdom (DOM environment)
+- React Testing Library + jest-dom
+
+### Qué se testea
+- Toggle de idioma ES/EN (i18n)
+- Carga y render del listado de jobs (mock de fetch)
+- Lookup de candidato por email (success + error localizado)
+- Envío de postulación: valida que el `POST` incluya los campos requeridos (incluyendo `applicationId`)
 
 ---
 
@@ -127,9 +169,19 @@ src/
     candidate.js       # getCandidateByEmail()
     apply.js           # applyToJob()
   components/
-    CandidateForm.jsx  # Step 2
-    JobsList.jsx       # Step 3
-    JobCard.jsx        # UI por job
+    CandidateForm.jsx  # Obtiene los datos del candidato
+    JobsList.jsx       # Lista las posiciones abiertas
+    JobCard.jsx        # Aplica a la posición
+  i18n/
+    translations.js    # diccionario ES/EN
+    I18nProvider.jsx   # provider (context)
+    useI18n.js         # hook
+  test/
+    setupTests.js
+    App.i18n.test.jsx
+    JobsList.test.jsx
+    CandidateForm.test.jsx
+    JobCard.apply.test.jsx
   theme.js             # MUI Theme (Lavanda + tipografía)
   App.jsx
   main.jsx
@@ -145,8 +197,4 @@ src/
 
 ---
 
-## Próximos pasos (opcional)
-- Controlar logs con flag de entorno (`VITE_DEBUG`) para no imprimir en producción.
-- Mejorar mensajes de error según respuesta del backend.
 
----
