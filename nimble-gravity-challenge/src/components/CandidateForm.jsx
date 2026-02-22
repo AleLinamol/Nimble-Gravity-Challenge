@@ -67,7 +67,7 @@ export default function CandidateForm({ candidate, onCandidateLoaded }) {
               Datos del candidato
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Ingresá tu email.
+              Ingresa tu email.
             </Typography>
           </Box>
 
