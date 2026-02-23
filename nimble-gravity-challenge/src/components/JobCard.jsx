@@ -55,15 +55,12 @@ export default function JobCard({ job, candidate }) {
         repoUrl: repoUrl.trim(),
       };
 
-      console.log("[POST /api/candidate/apply-to-job] body:", payload);
 
       const res = await applyToJob(payload);
-      console.log("[POST /api/candidate/apply-to-job] response:", res);
 
       setSubmitOk(true);
     } catch (e) {
-      console.error("[POST /api/candidate/apply-to-job] error:", e);
-      console.error("[POST /api/candidate/apply-to-job] error.details:", e?.details);
+
 
       const fieldErrors = e?.details?.details?.fieldErrors;
       const fieldErrorsMsg = fieldErrors

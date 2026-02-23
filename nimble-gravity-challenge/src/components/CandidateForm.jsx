@@ -35,11 +35,9 @@ export default function CandidateForm({ candidate, onCandidateLoaded }) {
       setError(null);
 
       const data = await getCandidateByEmail(email);
-      console.log("[GET /api/candidate/get-by-email] response:", data);
 
       onCandidateLoaded(data);
     } catch (e) {
-      console.error("[GET /api/candidate/get-by-email] error:", e);
 
       // Tomar el mensaje real del backend si viene en details
       const rawMsg =
